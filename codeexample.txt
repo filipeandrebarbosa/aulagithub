@@ -1,3 +1,38 @@
+Estrutura FINAL correta (igual ao teu projeto)
+Include/
+ ├── features/
+ │    └── Smoke/
+ │         └── UserAccess/
+ │              └── Login.feature
+ │
+ └── scripts/
+      └── groovy/
+           └── stepDefinitions/
+                └── UserAccess/
+                     └── LoginSteps.groovy
+
+
+Keywords/
+ ├── BasePage.groovy
+ └── Page_Login.groovy
+
+
+Object Repository/
+ └── Pages/
+     └── UserAccess/
+         └── Login/
+             ├── input_username
+             ├── input_password
+             ├── btn_signIn
+             ├── dashboard_home
+             └── login_error_message
+
+
+Data Files/
+ └── LoginUsers   (Excel importado)
+
+Agora sim — isto bate certo com o que estás a ver.
+
 ✅ 1) Login.feature
 
 📌 Include/features/Smoke/UserAccess/Login.feature
@@ -32,8 +67,9 @@ Feature: User Login
       | Approver 1  | InvalidCredentials  | error          |
 ✅ 2) LoginSteps.groovy
 
-📌 Step Definitions/UserAccess/LoginSteps.groovy
+📌 LOCAL CORRETO:
 
+Include/scripts/groovy/stepDefinitions/UserAccess/LoginSteps.groovy
 package stepDefinitions.UserAccess
 
 
@@ -45,13 +81,14 @@ import cucumber.api.java.en.When
 import cucumber.api.java.en.Then
 
 
-import Pages.UserAccess.LoginPage
+// Page Object em Keywords (default package)
+import Page_Login
 
 
 class LoginSteps {
 
 
-    LoginPage loginPage = new LoginPage()
+    Page_Login loginPage = new Page_Login()
 
 
     @Given("the user opens the browser")
@@ -93,10 +130,9 @@ class LoginSteps {
 }
 ✅ 3) BasePage.groovy
 
-📌 Keywords/Pages/Common/BasePage.groovy
+📌 Keywords/BasePage.groovy
 
-package Pages.Common
-
+⚠️ Sem packages, porque está no default package.
 
 import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
 import com.kms.katalon.core.model.FailureHandling
@@ -126,12 +162,9 @@ class BasePage {
         WebUI.verifyElementPresent(obj, 10, FailureHandling.STOP_ON_FAILURE)
     }
 }
-✅ 4) LoginPage.groovy (Excel Driven)
+✅ 4) Page_Login.groovy
 
-📌 Keywords/Pages/UserAccess/LoginPage.groovy
-
-package Pages.UserAccess
-
+📌 Keywords/Page_Login.groovy
 
 import static com.kms.katalon.core.testobject.ObjectRepository.findTestObject
 import static com.kms.katalon.core.testdata.TestDataFactory.findTestData
@@ -142,13 +175,12 @@ import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
 
 
 import internal.GlobalVariable
-import Pages.Common.BasePage
 
 
-class LoginPage extends BasePage {
+class Page_Login extends BasePage {
 
 
-    // Login fields
+    // Login objects
     def usernameField = findTestObject("Pages/UserAccess/Login/input_username")
     def passwordField = findTestObject("Pages/UserAccess/Login/input_password")
     def signInButton  = findTestObject("Pages/UserAccess/Login/btn_signIn")
@@ -196,38 +228,47 @@ class LoginPage extends BasePage {
         }
 
 
-        throw new Exception("Role not found in Excel: " + role + " in sheet " + sheetName)
+        throw new Exception("Role not found in Excel: " + role + " (Sheet: " + sheetName + ")")
     }
 
 
-    // Success check
+    // Success validation
     def verifyLoginSuccess() {
         verifyPresent(dashboardHome)
     }
 
 
-    // Error check
+    // Error validation
     def verifyLoginError() {
         verifyPresent(loginErrorMsg)
     }
 }
-✅ 5) Object Repository (obrigatório)
+✅ 5) Object Repository obrigatório
 
-Tu tens de criar estes 5 objects:
+Cria estes 5 objects:
 
-Nome	XPath exemplo
+Object Name	XPath exemplo
 input_username	//input[@name='username']
 input_password	//input[@name='password']
 btn_signIn	//button[@type='submit']
 dashboard_home	//h1[@class='maintitle']
 login_error_message	//div[contains(@class,'error')]
-✅ 6) Profile QA.glbl
+✅ 6) Excel Data File
 
-📌 Profiles/QA.glbl
+Importa o Excel como:
 
-Só precisas disto:
+📌 Data Files/LoginUsers
 
-Variable	Value
-baseUrl	https://qa-teusite
+Sheets:
 
-Excel trata do resto.
+ValidCredentials
+
+InvalidCredentials
+
+Colunas:
+
+user
+
+password
+
+role

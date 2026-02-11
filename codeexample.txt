@@ -1,68 +1,161 @@
-A tua sheet ValidCredentials tem exatamente o formato ideal:
+✅ 1) Feature File (BDD)
 
-✅ colunas:
+📌 Include/features/Smoke/UserAccess/Login.feature
 
-userName
+Feature: User Login
 
-user
 
-password
+  As a user of the system
+  I want to login with valid or invalid credentials
+  So that authentication is validated correctly
 
-role
 
-E tens roles tipo:
 
-PR Requester
 
-Approver 1
+  @smoke @login
+  Scenario Outline: Login validation with different credentials
 
-Business Support
 
-Admin
-etc…
+    Given the user opens the browser
+    And the user navigates to the login page
 
-Ou seja: isto é ouro para automation enterprise.
 
-Agora vamos só ligar isto ao teu login.
+    When the user logs in as "<role>" using "<sheet>"
 
-✅ Objetivo final
 
-Tu queres escrever na feature:
+    Then the login result should be "<expectedResult>"
 
-When the user logs in as "Admin"
 
-E o sistema vai buscar automaticamente:
 
-username/email
 
-password
+    Examples:
+      | role        | sheet               | expectedResult |
+      | Admin       | ValidCredentials    | success        |
+      | Admin       | InvalidCredentials  | error          |
+      | Approver 1  | ValidCredentials    | success        |
+      | Approver 1  | InvalidCredentials  | error          |
+✅ 2) Step Definitions
 
-no Excel, na sheet certa.
+📌 Scripts/stepDefinitions/UserAccess/LoginSteps.groovy
 
-✅ PASSO 1 — Importar o Excel no Katalon
+package stepDefinitions.UserAccess
 
-Já tens o ficheiro Excel.
 
-Agora no Katalon:
+import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
 
-Data Files → botão direito → New → Test Data
 
-Escolhe:
+import cucumber.api.java.en.Given
+import cucumber.api.java.en.When
+import cucumber.api.java.en.Then
 
-✅ Excel File
 
-Nome:
+import Pages.UserAccess.LoginPage
 
-LoginUsers
 
-Seleciona o ficheiro.
 
-📌 Vai aparecer assim:
 
-Data Files/LoginUsers
-✅ PASSO 2 — Código correto no LoginPage.groovy
+class LoginSteps {
 
-Agora mete isto no teu:
+
+    LoginPage loginPage = new LoginPage()
+
+
+
+
+    // -----------------------------
+    // GIVEN
+    // -----------------------------
+
+
+    @Given("the user opens the browser")
+    def openBrowser() {
+        WebUI.openBrowser("")
+        WebUI.maximizeWindow()
+    }
+
+
+    @Given("the user navigates to the login page")
+    def navigateToLoginPage() {
+        loginPage.goToLoginPage()
+    }
+
+
+
+
+    // -----------------------------
+    // WHEN
+    // -----------------------------
+
+
+    @When("the user logs in as {string} using {string}")
+    def loginAsRoleFromSheet(String role, String sheet) {
+        loginPage.loginWithRole(role, sheet)
+    }
+
+
+
+
+    // -----------------------------
+    // THEN
+    // -----------------------------
+
+
+    @Then("the login result should be {string}")
+    def verifyLoginResult(String expectedResult) {
+
+
+        if (expectedResult.equalsIgnoreCase("success")) {
+            loginPage.verifyLoginSuccess()
+        }
+        else if (expectedResult.equalsIgnoreCase("error")) {
+            loginPage.verifyLoginFailed()
+        }
+        else {
+            throw new Exception("Unknown expected result: " + expectedResult)
+        }
+
+
+        WebUI.closeBrowser()
+    }
+}
+✅ 3) BasePage (Core POM)
+
+📌 Keywords/Pages/Common/BasePage.groovy
+
+package Pages.Common
+
+
+import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
+import com.kms.katalon.core.model.FailureHandling
+
+
+
+
+class BasePage {
+
+
+    def waitForElement(def testObject, int timeout = 10) {
+        WebUI.waitForElementVisible(testObject, timeout, FailureHandling.STOP_ON_FAILURE)
+    }
+
+
+    def click(def testObject) {
+        waitForElement(testObject)
+        WebUI.click(testObject)
+    }
+
+
+    def type(def testObject, String text) {
+        waitForElement(testObject)
+        WebUI.setText(testObject, text)
+    }
+
+
+    def verifyElementPresent(def testObject) {
+        WebUI.verifyElementPresent(testObject, 10, FailureHandling.STOP_ON_FAILURE)
+    }
+}
+✅ 4) Login Page Object (Excel Driven Login)
 
 📌 Keywords/Pages/UserAccess/LoginPage.groovy
 
@@ -70,16 +163,27 @@ package Pages.UserAccess
 
 
 import static com.kms.katalon.core.testobject.ObjectRepository.findTestObject
-import com.kms.katalon.core.testdata.TestData
 import static com.kms.katalon.core.testdata.TestDataFactory.findTestData
+
+
+import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
+import com.kms.katalon.core.testdata.TestData
+
+
+import internal.GlobalVariable
 
 
 import Pages.Common.BasePage
 
 
+
+
 class LoginPage extends BasePage {
 
 
+    // -----------------------------
+    // Object Repository locators
+    // -----------------------------
     def usernameField = findTestObject("Pages/UserAccess/Login/input_username")
     def passwordField = findTestObject("Pages/UserAccess/Login/input_password")
     def signInButton  = findTestObject("Pages/UserAccess/Login/btn_signIn")
@@ -88,8 +192,26 @@ class LoginPage extends BasePage {
     def dashboardElement = findTestObject("Pages/UserAccess/Login/dashboard_home")
 
 
-    // --- LOGIN WITH EXCEL ROLE ---
-    def loginWithRole(String role, String sheetName = "ValidCredentials") {
+    // Error message object (must exist)
+    def errorMessage = findTestObject("Pages/UserAccess/Login/msg_error")
+
+
+
+
+    // -----------------------------
+    // Navigation
+    // -----------------------------
+    def goToLoginPage() {
+        WebUI.navigateToUrl(GlobalVariable.baseUrl + "/login")
+    }
+
+
+
+
+    // -----------------------------
+    // Excel Role Login
+    // -----------------------------
+    def loginWithRole(String role, String sheetName) {
 
 
         TestData data = findTestData("LoginUsers")
@@ -109,7 +231,7 @@ class LoginPage extends BasePage {
                 String password = data.getValue("password", i)
 
 
-                println("Logging in as role: " + role + " -> " + username)
+                println("Logging in as: " + role + " (" + username + ") from sheet: " + sheetName)
 
 
                 type(usernameField, username)
@@ -122,100 +244,53 @@ class LoginPage extends BasePage {
         }
 
 
-        throw new Exception("Role not found in Excel sheet: " + role)
+        throw new Exception("Role not found in Excel: " + role + " (Sheet: " + sheetName + ")")
     }
 
 
+
+
+    // -----------------------------
+    // Validations
+    // -----------------------------
     def verifyLoginSuccess() {
         verifyElementPresent(dashboardElement)
     }
+
+
+    def verifyLoginFailed() {
+        verifyElementPresent(errorMessage)
+    }
 }
-✅ PASSO 3 — Step Definition em LoginSteps.groovy
+✅ 5) Object Repository obrigatório
 
-Agora no teu:
+Confirma que tens estes objects:
 
-📌 Scripts/stepDefinitions/UserAccess/LoginSteps.groovy
+Object Repository/Pages/UserAccess/Login/
+   input_username
+   input_password
+   btn_signIn
+   dashboard_home
+   msg_error   <-- tens de criar este
+✅ 6) Criar o objecto msg_error
 
-Adiciona:
+📌 msg_error
 
-@When("the user logs in as {string}")
-def loginAsRole(String role) {
-    loginPage.loginWithRole(role, "ValidCredentials")
-}
-✅ PASSO 4 — Feature file
+XPath típico (ajusta ao teu sistema):
 
-📌 Login.feature
+//div[contains(@class,'error')]
 
-Agora podes escrever:
+ou se tiver texto:
 
-Scenario: Login as Admin
-  Given the user opens the browser
-  And the user navigates to the login page
-  When the user logs in as "Admin"
-  Then the user should be logged in successfully
+//*[contains(text(),'Invalid')]
+✅ 7) Execution Profile
 
-🔥 Ele vai procurar no Excel a linha onde role = Admin.
+📌 Profiles/QA.glbl
 
-⚠️ Atenção MUITO importante
+Só precisa disto:
 
-No teu Excel o role parece ser:
-
-Admin
-PR Requester
-Approver 1
-Approver 2
-P2P Specialist
+Name	Value
+baseUrl	https://harmoni-qa
 ...
 
-Então tens de usar exatamente o mesmo texto.
-
-Exemplo:
-
-When the user logs in as "Approver 1"
-✅ PASSO 5 — Cenários inválidos (sheet InvalidCredentials)
-
-Para login negativo:
-
-Scenario: Login fails
-  When the user logs in as "Admin" from "InvalidCredentials"
-  Then error message should appear
-
-Step:
-
-@When("the user logs in as {string} from {string}")
-def loginFromSheet(String role, String sheet) {
-    loginPage.loginWithRole(role, sheet)
-}
-
-Agora podes usar qualquer sheet:
-
-ValidCredentials
-
-InvalidCredentials
-
-loginExtranet
-
-🏆 Melhor prática enterprise para ti
-
-Eu recomendo:
-
-Feature usa sempre ROLE
-When user logs in as "Approver 2"
-
-Nunca username direto.
-
-Porque username muda, role não.
-
-🚀 Próximo passo
-
-Filipe, queres que eu te faça já o Step universal:
-
-✅ Given the user is logged in as "Approver 1"
-
-Para poderes começar todas as features assim:
-
-Given the user is logged in as "Admin"
-When user creates purchase order
-Then it should be approved
-
-Isso é mesmo nível banco/enterprise 😄
+Users vêm todos do Excel.

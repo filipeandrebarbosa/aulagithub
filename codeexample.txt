@@ -1,28 +1,4 @@
-✅ Estrutura Final (Correta)
-Include/features/Smoke/UserAccess/Login.feature
-
-
-Test Cases/Step Definitions/UserAccess/LoginSteps.groovy
-
-
-Keywords/Pages/Common/BasePage.groovy
-Keywords/Pages/UserAccess/LoginPage.groovy
-
-
-Object Repository/Pages/UserAccess/Login/
-   input_username
-   input_password
-   btn_signIn
-   dashboard_home
-   login_error_message   (vais criar este para erro)
-
-
-Data Files/LoginUsers.xlsx
-   Sheets:
-     ValidCredentials
-     InvalidCredentials
-     loginExtranet
-✅ 1) Login.feature (Scenario Outline com Excel)
+✅ 1) Login.feature
 
 📌 Include/features/Smoke/UserAccess/Login.feature
 
@@ -56,7 +32,7 @@ Feature: User Login
       | Approver 1  | InvalidCredentials  | error          |
 ✅ 2) LoginSteps.groovy
 
-📌 Test Cases → Step Definitions → UserAccess → LoginSteps
+📌 Step Definitions/UserAccess/LoginSteps.groovy
 
 package stepDefinitions.UserAccess
 
@@ -72,14 +48,10 @@ import cucumber.api.java.en.Then
 import Pages.UserAccess.LoginPage
 
 
-
-
 class LoginSteps {
 
 
     LoginPage loginPage = new LoginPage()
-
-
 
 
     @Given("the user opens the browser")
@@ -112,7 +84,7 @@ class LoginSteps {
             loginPage.verifyLoginError()
         }
         else {
-            throw new Exception("Invalid expectedResult: " + expectedResult)
+            throw new Exception("Unknown expectedResult: " + expectedResult)
         }
 
 
@@ -130,41 +102,31 @@ import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
 import com.kms.katalon.core.model.FailureHandling
 
 
-
-
 class BasePage {
 
 
-    def waitForElement(def testObject, int timeout = 10) {
-        WebUI.waitForElementVisible(
-            testObject,
-            timeout,
-            FailureHandling.STOP_ON_FAILURE
-        )
+    def waitForElement(def obj, int timeout = 10) {
+        WebUI.waitForElementVisible(obj, timeout, FailureHandling.STOP_ON_FAILURE)
     }
 
 
-    def click(def testObject) {
-        waitForElement(testObject)
-        WebUI.click(testObject)
+    def click(def obj) {
+        waitForElement(obj)
+        WebUI.click(obj)
     }
 
 
-    def type(def testObject, String text) {
-        waitForElement(testObject)
-        WebUI.setText(testObject, text)
+    def type(def obj, String text) {
+        waitForElement(obj)
+        WebUI.setText(obj, text)
     }
 
 
-    def verifyElementPresent(def testObject) {
-        WebUI.verifyElementPresent(
-            testObject,
-            10,
-            FailureHandling.STOP_ON_FAILURE
-        )
+    def verifyPresent(def obj) {
+        WebUI.verifyElementPresent(obj, 10, FailureHandling.STOP_ON_FAILURE)
     }
 }
-✅ 4) LoginPage.groovy (Excel + Success/Error)
+✅ 4) LoginPage.groovy (Excel Driven)
 
 📌 Keywords/Pages/UserAccess/LoginPage.groovy
 
@@ -180,30 +142,21 @@ import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
 
 
 import internal.GlobalVariable
-
-
 import Pages.Common.BasePage
-
-
 
 
 class LoginPage extends BasePage {
 
 
-    // Login page objects
+    // Login fields
     def usernameField = findTestObject("Pages/UserAccess/Login/input_username")
     def passwordField = findTestObject("Pages/UserAccess/Login/input_password")
     def signInButton  = findTestObject("Pages/UserAccess/Login/btn_signIn")
 
 
-    // Post-login validation objects
-    def dashboardElement = findTestObject("Pages/UserAccess/Login/dashboard_home")
-
-
-    // Error validation object (create in OR)
-    def loginErrorMessage = findTestObject("Pages/UserAccess/Login/login_error_message")
-
-
+    // Validation objects
+    def dashboardHome = findTestObject("Pages/UserAccess/Login/dashboard_home")
+    def loginErrorMsg = findTestObject("Pages/UserAccess/Login/login_error_message")
 
 
     // Navigate
@@ -212,9 +165,7 @@ class LoginPage extends BasePage {
     }
 
 
-
-
-    // Excel Role Login
+    // Login using Excel role + sheet
     def loginWithRole(String role, String sheetName) {
 
 
@@ -235,13 +186,6 @@ class LoginPage extends BasePage {
                 String password = data.getValue("password", i)
 
 
-                println("===================================")
-                println("Logging in with role: " + role)
-                println("Sheet: " + sheetName)
-                println("Username: " + username)
-                println("===================================")
-
-
                 type(usernameField, username)
                 type(passwordField, password)
                 click(signInButton)
@@ -252,39 +196,38 @@ class LoginPage extends BasePage {
         }
 
 
-        throw new Exception("Role not found in Excel: " + role + " (Sheet: " + sheetName + ")")
+        throw new Exception("Role not found in Excel: " + role + " in sheet " + sheetName)
     }
 
 
-
-
-    // Success Validation
+    // Success check
     def verifyLoginSuccess() {
-        verifyElementPresent(dashboardElement)
+        verifyPresent(dashboardHome)
     }
 
 
+    // Error check
+    def verifyLoginError() {
+        verifyPresent(loginErrorMsg)
+    }
+}
+✅ 5) Object Repository (obrigatório)
 
+Tu tens de criar estes 5 objects:
 
-    // Error Validation
-✅ 5) Object Repository obrigatório para erro
+Nome	XPath exemplo
+input_username	//input[@name='username']
+input_password	//input[@name='password']
+btn_signIn	//button[@type='submit']
+dashboard_home	//h1[@class='maintitle']
+login_error_message	//div[contains(@class,'error')]
+✅ 6) Profile QA.glbl
 
-Tu já tens:
+📌 Profiles/QA.glbl
 
-dashboard_home
+Só precisas disto:
 
-Agora precisas de criar mais um object:
+Variable	Value
+baseUrl	https://qa-teusite
 
-📌
-
-Object Repository/Pages/UserAccess/Login/login_error_message
-
-XPath típico:
-
-//div[contains(@class,'error')]
-
-ou
-
-//*[contains(text(),'Invalid credentials')]
-
-(depende da tua app)
+Excel trata do resto.

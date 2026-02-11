@@ -1,27 +1,232 @@
-plugins {
-  id 'java'
-  id "com.katalon.gradle-plugin" version "0.1.2"
-}
+✅ 1) Feature File
 
-repositories {
-  mavenCentral()
-}
+📌 Include/features/Smoke/UserAccess/Login.feature
 
-/*
-  FIX: Katalon 10.4.2 runs on Java 17.
-  Jackson 2.18.x requires Java 21 and causes:
-  UnsupportedClassVersionError (class file version 65).
-*/
-configurations.all {
-  resolutionStrategy {
-    force 'com.fasterxml.jackson.core:jackson-core:2.16.0'
-    force 'com.fasterxml.jackson.core:jackson-annotations:2.16.0'
-    force 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
-  }
-}
+Feature: User Login
 
-dependencies {
-  implementation 'com.fasterxml.jackson.core:jackson-core:2.16.0'
-  implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.0'
-  implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
+
+  As a valid user
+  I want to login into the application
+  So that I can access the system successfully
+
+
+  @smoke @login
+  Scenario: Successful login with valid credentials
+
+
+    Given the user opens the browser
+    And the user navigates to the login page
+    When the user enters valid username and password
+    And the user clicks on Sign In
+    Then the user should be logged in successfully
+✅ 2) Step Definitions
+
+📌 Scripts/stepDefinitions/UserAccess/LoginSteps.groovy
+
+package stepDefinitions.UserAccess
+
+
+import static com.kms.katalon.core.testobject.ObjectRepository.findTestObject
+
+
+import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
+
+
+import cucumber.api.java.en.Given
+import cucumber.api.java.en.When
+import cucumber.api.java.en.Then
+
+
+import Pages.UserAccess.LoginPage
+
+
+
+
+class LoginSteps {
+
+
+    LoginPage loginPage = new LoginPage()
+
+
+
+
+    @Given("the user opens the browser")
+    def openBrowser() {
+        WebUI.openBrowser("")
+        WebUI.maximizeWindow()
+    }
+
+
+    @Given("the user navigates to the login page")
+    def navigateToLoginPage() {
+        loginPage.goToLoginPage()
+    }
+
+
+    @When("the user enters valid username and password")
+    def enterCredentials() {
+        loginPage.enterUsername()
+        loginPage.enterPassword()
+    }
+
+
+    @When("the user clicks on Sign In")
+    def clickSignIn() {
+        loginPage.clickSignIn()
+    }
+
+
+    @Then("the user should be logged in successfully")
+    def verifyLoginSuccess() {
+        loginPage.verifyLoginSuccess()
+        WebUI.closeBrowser()
+    }
 }
+✅ 3) Base Page (POM Core)
+
+📌 Keywords/Pages/Common/BasePage.groovy
+
+package Pages.Common
+
+
+import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
+import com.kms.katalon.core.model.FailureHandling
+
+
+
+
+class BasePage {
+
+
+    /**
+     * Wait for element visibility
+     */
+    def waitForElement(def testObject, int timeout = 10) {
+        WebUI.waitForElementVisible(testObject, timeout, FailureHandling.STOP_ON_FAILURE)
+    }
+
+
+    /**
+     * Click element safely
+     */
+    def click(def testObject) {
+        waitForElement(testObject)
+        WebUI.click(testObject)
+    }
+
+
+    /**
+     * Set text safely
+     */
+    def type(def testObject, String text) {
+        waitForElement(testObject)
+        WebUI.setText(testObject, text)
+    }
+
+
+    /**
+     * Verify element exists
+     */
+    def verifyElementPresent(def testObject) {
+        WebUI.verifyElementPresent(testObject, 10, FailureHandling.STOP_ON_FAILURE)
+    }
+}
+✅ 4) Login Page Object
+
+📌 Keywords/Pages/UserAccess/LoginPage.groovy
+
+package Pages.UserAccess
+
+
+import static com.kms.katalon.core.testobject.ObjectRepository.findTestObject
+
+
+import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
+
+
+import internal.GlobalVariable
+
+
+import Pages.Common.BasePage
+
+
+
+
+class LoginPage extends BasePage {
+
+
+    // Object Repository locators
+    def usernameField = findTestObject("Pages/UserAccess/Login/input_username")
+    def passwordField = findTestObject("Pages/UserAccess/Login/input_password")
+    def signInButton  = findTestObject("Pages/UserAccess/Login/btn_signIn")
+
+
+    // Example post-login element (adjust later)
+    def dashboardElement = findTestObject("Pages/UserAccess/Login/dashboard_home")
+
+
+
+
+    /**
+     * Navigate to Login URL
+     */
+    def goToLoginPage() {
+        String url = GlobalVariable.baseUrl + "/login"
+        WebUI.navigateToUrl(url)
+    }
+
+
+    /**
+     * Fill username from profile
+     */
+    def enterUsername() {
+        type(usernameField, GlobalVariable.username)
+    }
+
+
+    /**
+     * Fill password from profile
+     */
+    def enterPassword() {
+        type(passwordField, GlobalVariable.password)
+    }
+
+
+    /**
+     * Click Sign In button
+     */
+    def clickSignIn() {
+        click(signInButton)
+    }
+
+
+    /**
+     * Verify login success
+     */
+    def verifyLoginSuccess() {
+        verifyElementPresent(dashboardElement)
+    }
+}
+⚠️ IMPORTANTE (para não dar erro)
+
+No LoginPage.groovy eu incluí isto:
+
+def dashboardElement = findTestObject("Pages/UserAccess/Login/dashboard_home")
+
+👉 Tens de criar esse object no Object Repository ou então muda para outro elemento real da tua app depois do login.
+
+Se ainda não tens nada, mete algo temporário:
+
+Alternativa simples:
+def verifyLoginSuccess() {
+    WebUI.verifyTextNotPresent("Login", false)
+}
+✅ Object Repository necessário
+
+Confirma que tens:
+
+Object Repository/Pages/UserAccess/Login/
+   input_username
+   input_password
+   btn_signIn
+   dashboard_home   <-- falta este (criar ou mudar)

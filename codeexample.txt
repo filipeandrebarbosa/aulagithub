@@ -1,27 +1,27 @@
-package stepDefinitions.auth
+plugins {
+  id 'java'
+  id "com.katalon.gradle-plugin" version "0.1.2"
+}
 
-import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
+repositories {
+  mavenCentral()
+}
 
-import cucumber.api.java.en.Given
-import cucumber.api.java.en.When
-import cucumber.api.java.en.Then
+/*
+  FIX: Katalon 10.4.2 runs on Java 17.
+  Jackson 2.18.x requires Java 21 and causes:
+  UnsupportedClassVersionError (class file version 65).
+*/
+configurations.all {
+  resolutionStrategy {
+    force 'com.fasterxml.jackson.core:jackson-core:2.16.0'
+    force 'com.fasterxml.jackson.core:jackson-annotations:2.16.0'
+    force 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
+  }
+}
 
-class LoginSteps {
-
-    @Given("the user is on the login page")
-    def openLoginPage() {
-        WebUI.openBrowser("")
-        WebUI.navigateToUrl("https://example.com/login")
-    }
-
-    @When("the user logs in with valid credentials")
-    def login() {
-        println("Login action will be implemented using LoginPage (POM)")
-    }
-
-    @Then("the home page should be displayed")
-    def verifyHome() {
-        println("Home page verification will be added later")
-        WebUI.closeBrowser()
-    }
+dependencies {
+  implementation 'com.fasterxml.jackson.core:jackson-core:2.16.0'
+  implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.0'
+  implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
 }

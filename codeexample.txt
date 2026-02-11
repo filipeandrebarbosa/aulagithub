@@ -272,3 +272,79 @@ user
 password
 
 role
+
+
+
+
+
+
+------------------
+✅ Plano perfeito agora (passo a passo)
+1) Instala o Katalon limpo
+
+Quando abrir, confirma em:
+
+Help → About
+
+Que estás tipo:
+
+Katalon 10.x
+
+Java 17 embedded
+
+2) Cria um projeto novo vazio primeiro
+
+📌 Só para testar que está tudo OK.
+
+File → New → Project → Web
+
+Nome:
+
+TestClean
+3) Testa se o Cucumber funciona sem erro
+
+Cria:
+
+Include/features/login.feature
+Feature: Smoke
+
+
+  Scenario: Open browser
+    Given open browser
+
+Agora:
+
+Step Definition
+
+Right click → New → Step Definition
+
+Package:
+
+steps
+
+Class:
+
+SmokeSteps
+
+Código:
+
+package steps
+
+
+import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
+import cucumber.api.java.en.Given
+
+
+class SmokeSteps {
+
+
+  @Given("open browser")
+  def openBrowser() {
+    WebUI.openBrowser("")
+    WebUI.closeBrowser()
+  }
+}
+
+▶ Run
+
+Se isto correr → acabou, tens Katalon saudável.

@@ -1,0 +1,27 @@
+package stepDefinitions.auth
+
+import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
+
+import cucumber.api.java.en.Given
+import cucumber.api.java.en.When
+import cucumber.api.java.en.Then
+
+class LoginSteps {
+
+    @Given("the user is on the login page")
+    def openLoginPage() {
+        WebUI.openBrowser("")
+        WebUI.navigateToUrl("https://example.com/login")
+    }
+
+    @When("the user logs in with valid credentials")
+    def login() {
+        println("Login action will be implemented using LoginPage (POM)")
+    }
+
+    @Then("the home page should be displayed")
+    def verifyHome() {
+        println("Home page verification will be added later")
+        WebUI.closeBrowser()
+    }
+}

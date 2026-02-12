@@ -348,3 +348,18 @@ class SmokeSteps {
 ▶ Run
 
 Se isto correr → acabou, tens Katalon saudável.
+
+
+import com.kms.katalon.core.annotation.BeforeTestSuite
+import com.kms.katalon.core.cucumber.keyword.CucumberBuiltinKeywords
+import com.kms.katalon.core.cucumber.keyword.internal.CucumberGlueGenerator
+
+class CucumberSetup {
+
+    @BeforeTestSuite
+    def setupCucumberGlue() {
+        CucumberBuiltinKeywords.GLUE = [
+            'Include.steps'
+        ]
+        CucumberGlueGenerator.addDefaultPackages()
+    }

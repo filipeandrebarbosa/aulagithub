@@ -363,3 +363,19 @@ class CucumberSetup {
         ]
         CucumberGlueGenerator.addDefaultPackages()
     }
+
+
+
+
+
+A aplicação é do domínio de procurement, com workflows complexos (serviços vs materiais), múltiplos roles e regras de aprovação que multiplicam os cenários.
+Neste momento sou a única pessoa no projeto, não existe ainda uma framework estável (POM/waits/reporting) e não há API disponível, portanto grande parte da automação terá de ser feita via UI.
+Só em navegação existem cerca de 195 menus/submenus, que devem ser cobertos via abordagem data-driven para garantir estabilidade.
+Estimativa realista por fases:
+Fundação + primeiros smoke tests estáveis: 3–8 semanas
+Cobertura automatizada de navegação/menus: +2–4 semanas
+Fluxos críticos procurement (criação → aprovação → PO → receção): 1–5 dias por fluxo, ou seja:
+Top 10 fluxos: 2–8 semanas
+Top 30 fluxos: 2–6 meses
+As decision tables de aprovação não são realistas de cobrir 100% via UI, devido à combinatória. O recomendado é priorização por risco e amostragem (boundary/equivalence), ou então suporte técnico adicional (hooks/endpoints internos).
+Proponho um roadmap faseado orientado a risco, garantindo entregas rápidas e crescimento contínuo da cobertura.

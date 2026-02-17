@@ -379,3 +379,123 @@ Top 10 fluxos: 2–8 semanas
 Top 30 fluxos: 2–6 meses
 As decision tables de aprovação não são realistas de cobrir 100% via UI, devido à combinatória. O recomendado é priorização por risco e amostragem (boundary/equivalence), ou então suporte técnico adicional (hooks/endpoints internos).
 Proponho um roadmap faseado orientado a risco, garantindo entregas rápidas e crescimento contínuo da cobertura.
+
+
+
+
+
+
+Claro 😄 vamos fazer isto bem feito e pronto para apresentares ao cliente/coordenação.
+Vou-te dar um plano por fases, com entregas claras, tempos realistas para 1 pessoa, e linguagem “enterprise”.
+✅ Plano por Fases — Automação Procurement (Katalon + POM + Cucumber)
+Contexto (assumptions)
+1 QA engineer dedicado
+Projeto atual sem framework estável
+Sem API layer → automação maioritariamente via UI
+Aplicação procurement com workflows complexos (7 fluxos principais)
+~195 menus/submenus
+CI será integrado mais tarde no Jenkins do cliente
+🎯 Objetivo geral
+Entregar automação sustentável e escalável, com valor rápido (smoke), e expansão incremental por risco.
+✅ FASE 0 — Fundação (Framework & Standards)
+Objetivo
+Construir a base profissional para evitar testes frágeis e dívida técnica.
+Entregáveis
+Arquitetura Page Object Model
+Estrutura BDD com Cucumber
+Keywords reutilizáveis (navigation, login, approvals)
+Estratégia de waits/sincronização
+Reporting + evidências (screenshots/logs)
+Data-driven preparado (Excel/CSV)
+Execution profiles (dev/test/preprod)
+Tempo realista
+📌 3 a 8 semanas
+Sem esta fase, qualquer tentativa de “automatizar tudo” vira scripts instáveis e impossível de manter.
+✅ FASE 1 — Smoke Suite + Navegação (195 menus/submenus)
+Objetivo
+Garantir que a aplicação “não está partida” e que toda a navegação principal carrega.
+Estratégia recomendada
+1 teste data-driven que percorre os menus/submenus
+Validação por “sentinel element” (página carregou)
+Entregáveis
+Cobertura estrutural completa de navegação
+Primeira suite smoke executável
+Tempo realista
+📌 2 a 4 semanas
+✅ FASE 2 — Fluxos Procurement Críticos (Happy Paths)
+Objetivo
+Automatizar os fluxos que trazem valor imediato ao negócio.
+Exemplos típicos
+Criar Purchase Request (material)
+Criar Purchase Request (serviço)
+Aprovação Manager
+Aprovação Finance
+Conversão em Purchase Order
+Receção / Confirmação
+Ritmo realista (UI-only)
+1–2 fluxos completos por sprint (2 semanas)
+Tempo para top 10 fluxos
+📌 2 a 8 semanas
+✅ FASE 3 — Workflows Complexos (7 fluxos principais)
+Objetivo
+Cobrir os workflows completos com variações principais.
+Realidade procurement
+Cada fluxo (como o diagrama que mostraste) = 20–50 cenários
+Tempo realista por fluxo complexo
+📌 2 a 4 semanas por workflow
+Para 7 fluxos principais
+📌 4 a 8 meses (entregue incrementalmente)
+✅ FASE 4 — Decision Tables & Edge Cases
+Objetivo
+Cobrir regras complexas sem tentar “todas as combinações”.
+Abordagem correta
+Boundary values
+Equivalence classes
+Risk-based sampling
+Nota importante
+Cobertura 100% combinatória via UI é impraticável sem API/test hooks.
+Tempo
+📌 Contínuo / backlog evolutivo
+✅ FASE 5 — Industrialização no Jenkins do Cliente
+Objetivo
+Transformar automação em pipeline enterprise.
+Entregáveis
+Execução headless
+Gestão de credenciais/secrets
+Reports exportáveis
+Scheduling + regression packs
+Tempo típico
+📌 1 a 3 semanas (dependente do cliente)
+📍 Timeline Executiva (para management)
+Fase
+Entrega
+Tempo
+0
+Framework (POM + BDD + base estável)
+1–2 meses
+1
+Smoke + 195 menus automatizados
++2–4 semanas
+2
+Top fluxos críticos procurement
++1–2 meses
+3
+7 workflows completos
++4–8 meses
+4
+Decision tables (amostragem)
+contínuo
+5
+Jenkins cliente
++1–3 semanas
+✅ Mensagem final para o cliente (1 frase poderosa)
+“Automation in procurement is delivered as a phased roadmap: a stable foundation in 6–8 weeks, then incremental workflow coverage sprint by sprint. Full coverage is a multi-month program, not a single milestone.”
+🚀 Próximo passo (para ficar perfeito)
+Se me deres os nomes dos 7 fluxos principais, eu monto-te uma tabela estilo consultoria:
+Fluxo
+Nº decisões
+Nº cenários estimados
+Prioridade
+Tempo por fase
+Isso vira um documento que o cliente aceita imediatamente.
+Quais são os 7 fluxos?

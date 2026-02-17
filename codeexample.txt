@@ -499,3 +499,114 @@ Prioridade
 Tempo por fase
 Isso vira um documento que o cliente aceita imediatamente.
 Quais são os 7 fluxos?
+
+
+
+
+
+
+
+
+
+
+
+Plano por Fases — Automação Procurement (Katalon + Jenkins + POM + Cucumber)
+Contexto (assumptions)
+1 QA engineer dedicado
+Projeto atual sem framework consistente
+Aplicação procurement com workflows complexos (7 fluxos principais)
+~195 menus/submenus
+Sem API → maior parte dos testes via UI
+Jenkins já existe e será migrado para a máquina final do cliente
+✅ FASE 0 — Jenkins & Execution Pipeline (primeiro passo)
+Objetivo
+Garantir desde o início que tudo corre em ambiente industrial e não só localmente.
+Entregáveis
+Jenkins instalado e operacional na máquina alvo
+Configuração de agentes e browsers (headless)
+Execução automática de suites Katalon
+Reporting inicial + evidências (screenshots/logs)
+Gestão de credenciais e variáveis (Execution Profiles)
+Tempo realista
+📌 1 a 3 semanas
+(depende principalmente de acessos e infra do cliente)
+✅ FASE 1 — Fundação de Automação (Framework)
+Objetivo
+Construir uma base sustentável antes de escalar testes.
+Entregáveis
+Arquitetura Page Object Model (POM)
+Estrutura BDD com Cucumber
+Keywords reutilizáveis (login, navigation, approvals)
+Estratégia robusta de waits/sincronização
+Data-driven preparado (Excel/CSV)
+Convenções e standards para evitar “cada QA muda o processo”
+Tempo realista
+📌 3 a 8 semanas
+✅ FASE 2 — Smoke Suite + Navegação (195 menus/submenus)
+Objetivo
+Cobertura rápida de estabilidade e regressão básica.
+Estratégia recomendada
+Teste data-driven único para percorrer menus/submenus
+Validação por “sentinel element” (página carregou)
+Entregáveis
+Smoke suite executável em Jenkins
+Cobertura estrutural de navegação completa
+Tempo realista
+📌 2 a 4 semanas
+✅ FASE 3 — Fluxos Procurement Críticos (Happy Paths)
+Objetivo
+Automatizar os fluxos que trazem valor direto ao negócio.
+Exemplos típicos
+Criar Purchase Request (material)
+Criar Purchase Request (serviço)
+Aprovação Manager / Finance
+Conversão em Purchase Order
+Receção / Confirmação
+Ritmo realista (UI-only)
+1–2 fluxos completos por sprint (2 semanas)
+Tempo para top 10 fluxos
+📌 2 a 8 semanas
+✅ FASE 4 — Workflows Complexos (7 fluxos principais)
+Objetivo
+Cobrir workflows completos com variações principais.
+Realidade procurement
+Cada fluxo complexo = 20–50 cenários potenciais
+Tempo realista
+📌 2 a 4 semanas por workflow
+Para os 7 fluxos principais
+📌 4 a 8 meses, entregue incrementalmente
+✅ FASE 5 — Decision Tables & Edge Cases
+Objetivo
+Cobrir regras complexas sem explosão combinatória.
+Abordagem correta
+Boundary values
+Equivalence classes
+Risk-based sampling
+Nota
+Cobertura 100% combinatória via UI não é viável sem API/test hooks.
+Tempo
+📌 Contínuo / backlog evolutivo
+📍 Timeline Executiva (para cliente/management)
+Fase
+Entrega
+Tempo
+0
+Jenkins pipeline pronto (primeiro passo)
+1–3 semanas
+1
+Framework (POM + BDD + base estável)
++1–2 meses
+2
+Smoke + 195 menus automatizados
++2–4 semanas
+3
+Top fluxos críticos procurement
++1–2 meses
+4
+7 workflows completos
++4–8 meses
+5
+Decision tables (amostragem)
+contínuo
+✅ Frase final para o cliente
+“We will start by establishing Jenkins execution first, then build a sustainable automation framework (POM + BDD). After that, coverage will grow incrementally: smoke and navigation quickly, followed by procurement workflows sprint by sprint. Full coverage is a multi-month roadmap, not a single milestone.”

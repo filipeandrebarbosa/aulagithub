@@ -610,3 +610,91 @@ Decision tables (amostragem)
 contínuo
 ✅ Frase final para o cliente
 “We will start by establishing Jenkins execution first, then build a sustainable automation framework (POM + BDD). After that, coverage will grow incrementally: smoke and navigation quickly, followed by procurement workflows sprint by sprint. Full coverage is a multi-month roadmap, not a single milestone.”
+
+
+
+__________________________________
+
+
+
+
+Cria este ficheiro:
+
+📌 Test Listeners/CSVResultListener.groovy
+
+import com.kms.katalon.core.annotation.AfterTestCase
+import com.kms.katalon.core.context.TestCaseContext
+import com.kms.katalon.core.configuration.RunConfiguration
+
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
+import java.text.SimpleDateFormat
+
+class CSVResultListener {
+
+    // This is created ONCE per execution (Build Now)
+    static String csvFilePath = initCsvFile()
+
+    // Runs only once
+    static String initCsvFile() {
+
+        String projectDir = RunConfiguration.getProjectDir()
+
+        // Folder where CSV will be stored
+        String folderPath = projectDir + "/Reports/CSV"
+        Files.createDirectories(Paths.get(folderPath))
+
+        // Unique file name per execution
+        String runId = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())
+
+        String csvPath = folderPath + "/ExecutionResults_" + runId + ".csv"
+
+        // Create file with header
+        String header =
+                "Timestamp,TestSuite,TestCase,Status,FailureReason\n"
+
+        Files.write(Paths.get(csvPath), header.getBytes("UTF-8"))
+
+        return csvPath
+    }
+
+    @AfterTestCase
+    def afterTestCase(TestCaseContext ctx) {
+
+        String timestamp =
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())
+
+        // Suite name
+        String suiteName =
+                RunConfiguration.getExecutionSourceName()
+
+        // Test Case name
+        String testCaseName =
+                ctx.getTestCaseId()
+
+        // Status
+        String status =
+                ctx.getTestCaseStatus()
+
+        // Failure reason
+        String failureReason = ""
+        if (status != "PASSED") {
+            failureReason = ctx.getMessage() ?: ""
+        }
+
+        // Clean message (avoid breaking CSV)
+        failureReason = failureReason.replaceAll("[\\r\\n]+", " ")
+        failureReason = "\"" + failureReason.replace("\"", "'") + "\""
+
+        // Append line to the SAME file
+        String row =
+                "${timestamp},${suiteName},${testCaseName},${status},${failureReason}\n"
+
+        Files.write(
+                Paths.get(csvFilePath),
+                row.getBytes("UTF-8"),
+                StandardOpenOption.APPEND
+        )
+    }
+}

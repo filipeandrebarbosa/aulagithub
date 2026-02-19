@@ -1,0 +1,224 @@
+Estimativa por Categoria (metodologia explícita)
+Metodologia aplicada (recomendação QA)
+
+Conforme discutido com outros QAs, a estimativa não pode ser feita apenas como “tempo médio por teste”.
+Cada correção inclui sempre:
+
+Diagnóstico (identificar causa raiz)
+
+Correção (ajuste técnico)
+
+Reruns/Revalidação (confirmar estabilidade e evitar flakiness)
+
+Overhead (pipeline, evidências, merges, reexecuções)
+
+Dependências externas (segurança, permissões, dados, infra)
+
+𝑇
+𝑜
+𝑡
+𝑎
+𝑙
+=
+𝑁
+×
+(
+𝐷
+𝑖
+𝑎
+𝑔
+𝑛
+𝑜
+ˊ
+𝑠
+𝑡
+𝑖
+𝑐
+𝑜
++
+𝐶
+𝑜
+𝑟
+𝑟
+𝑒
+𝑐
+\c
+𝑎
+~
+𝑜
++
+𝑅
+𝑒
+𝑟
+𝑢
+𝑛
+𝑠
+)
+×
+(
+1
++
+𝑂
+𝑣
+𝑒
+𝑟
+ℎ
+𝑒
+𝑎
+𝑑
+)
++
+𝐷
+𝑒
+𝑝
+𝑒
+𝑛
+𝑑
+𝑒
+^
+𝑛
+𝑐
+𝑖
+𝑎
+𝑠
+Total=N×(Diagn
+o
+ˊ
+stico+Corre
+c
+\c
+	​
+
+a
+~
+o+Reruns)×(1+Overhead)+Depend
+e
+^
+ncias
+
+Os intervalos refletem precisamente esta variabilidade.
+
+1) Erro de Compilação Groovy (113 testes) – 80 a 200 horas
+Aplicação da metodologia:
+
+Diagnóstico: identificar imports/keywords/libs quebradas (2–6h por cluster)
+
+Correção: ajustar dependências e classes (1–4h)
+
+Reruns: recompilar + reexecutar suites (30–50% extra)
+
+Overhead: alinhamento repo/pipeline
+
+Porque o intervalo é grande?
+
+Pode haver poucas causas raiz (rápido) ou conflitos estruturais profundos (lento).
+
+Um fix pode desbloquear dezenas, mas exige estabilização inicial.
+
+📌 Variabilidade = nº real de causas raiz + tempo de recompilação/iteracão.
+
+2) Erro UI/Selector (81 testes) – 210 a 420 horas
+Aplicação da metodologia:
+
+Diagnóstico: perceber porque o elemento não é encontrado (0.5–1h)
+
+Correção: atualizar locator/waits/iframes (1–3h)
+
+Reruns: validar não-flaky (0.5–1h)
+
+Overhead: ausência de POM aumenta repetição
+
+Porque o intervalo é grande?
+
+Alguns fixes são simples, outros exigem sincronização complexa.
+
+Sem Page Objects, cada ajuste é manual em múltiplos testes.
+
+📌 Variabilidade = % de casos simples vs flaky + repetição estrutural.
+
+3) Permissões/Autorização (12 testes) – 50 a 100 horas
+Aplicação da metodologia:
+
+Diagnóstico: identificar role/entidade/regra de acesso (1–3h)
+
+Correção: ajustar utilizadores/dados/steps (2–4h)
+
+Reruns: validar em ambiente restrito (1–2h)
+
+Dependências externas: equipa security/admin
+
+Porque o intervalo é grande?
+
+Alguns casos resolvem rápido, outros dependem de acessos externos e esperas.
+
+📌 Variabilidade = disponibilidade de roles e suporte externo.
+
+4) Erro de Dados/Estado (10 testes) – 60 a 120 horas
+Aplicação da metodologia:
+
+Diagnóstico: identificar pré-condições e estado do workflow (2–4h)
+
+Correção: criar dados ou resets (2–5h)
+
+Reruns: confirmar reprodutibilidade (1–3h)
+
+Overhead: ambiente partilhado
+
+Porque o intervalo é grande?
+
+Se houver dados controlados → rápido
+
+Se o estado for imprevisível → esforço duplica
+
+📌 Variabilidade = controlo real sobre dados de teste.
+
+5) Não corre na pipeline (8 testes) – 40 a 80 horas
+Aplicação da metodologia:
+
+Diagnóstico: divergência Jenkins vs repo/suite (2–4h)
+
+Correção: configs, paths, drivers (2–6h)
+
+Reruns: builds lentos + validação (1–3h)
+
+Overhead: múltiplas pipelines inconsistentes
+
+Porque o intervalo é grande?
+
+Pode ser trivial ou envolver refactor da execução e suites antigas.
+
+📌 Variabilidade = grau de desalinhamento infra/pipelines.
+
+6) Regra de Negócio/Perímetro (2 testes) – 16 a 48 horas
+Aplicação da metodologia:
+
+Diagnóstico: confirmar regra com procurement/business (4–8h)
+
+Correção: ajustar asserts/fluxo (4–8h)
+
+Reruns: validação funcional completa (1–2 dias)
+
+Porque o intervalo é grande?
+
+Depende da clareza do requisito e disponibilidade do business.
+
+📌 Variabilidade = documentação e validação externa.
+
+Resumo Consolidado
+Categoria	Horas
+Compilação Groovy	80–200h
+UI/Selector	210–420h
+Permissões	50–100h
+Dados/Estado	60–120h
+Pipeline	40–80h
+Negócio	16–48h
+Total	456–968h
+Estimativa Final (1 QA)
+
+456h ≈ 3 meses úteis
+
+968h ≈ 6 meses úteis
+
+Com overhead corporativo e restrições externas:
+
+➡️ 4 a 8 meses calendário
